@@ -18,28 +18,14 @@
   background-color: #f2f2f2;
   border-top-left-radius: 1rem;
 }
+#root > aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
 h2.pane-header {
   margin: 0 0 1rem 0;
-}
-
-/* 编辑器及编辑器排版样式 */
-.simple-editor {
-  margin-bottom: 1rem;
-}
-.simple-editor .DraftEditor-root {
-  font-size: 16px;
-  line-height: 24px;
-  background-color: #fff;
-}
-.public-DraftEditor-content {
-  padding: 1em;
-}
-.public-DraftEditor-content div[data-block='true'] {
-  margin-bottom: 1em;
-}
-.public-DraftStyleDefault-block span[data-text='true'] {
-  line-height: 1.6em;
 }
 
 .action {

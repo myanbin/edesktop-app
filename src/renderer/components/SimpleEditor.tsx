@@ -8,6 +8,7 @@ import {
   RawDraftContentState,
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
+import './SimpleEditor.css';
 
 interface SimpleEditorProps {
   rawContent: RawDraftContentState;

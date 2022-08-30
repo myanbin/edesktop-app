@@ -1,0 +1,17 @@
+.simple-editor {
+  margin-bottom: 1rem;
+}
+.simple-editor .DraftEditor-root {
+  font-size: 16px;
+  line-height: 24px;
+  background-color: #fff;
+}
+.public-DraftEditor-content {
+  padding: 1em;
+}
+.public-DraftEditor-content div[data-block='true'] {
+  margin-bottom: 1em;
+}
+.public-DraftStyleDefault-block span[data-text='true'] {
+  line-height: 1.6em;
+}
