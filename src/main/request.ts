@@ -1,9 +1,22 @@
-import { ipcMain } from 'electron';
+import { ipcMain, net } from 'electron';
 
-ipcMain.handle('request:login', (e, data) => {
-  // eslint-disable-next-line no-console
-  console.log('login', data);
+const post = (url: string, data: unknown): Promise<unknown> => {
   return new Promise((resolve) => {
-    resolve('login success');
+    const req = net.request({ method: 'post', url });
+    req.on('response', (res) => {
+      res.on('data', (chunk) => {
+        resolve(JSON.parse(chunk.toString()));
+      });
+    });
+    req.setHeader('Content-Type', 'application/json');
+    req.setHeader('Authorization', 'Bearer 12345678');
+    req.end(JSON.stringify(data), 'utf-8');
   });
+};
+
+// Backend HTTP API
+const baseUrl = 'https://aicheck.xinhua-news.com';
+
+ipcMain.handle('request:login', (_e, data) => {
+  return post(`${baseUrl}/auth/login`, data);
 });
