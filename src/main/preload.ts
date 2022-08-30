@@ -18,4 +18,8 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
   },
+  // Send HTTP Request from render to main process
+  httpRequest: (target: string, data: unknown) => {
+    return ipcRenderer.invoke(`request:${target}`, data);
+  },
 });

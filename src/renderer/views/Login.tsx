@@ -6,9 +6,13 @@ const Login: FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const res = await window.electron.httpRequest('login', {
+      username,
+      password,
+    });
     // eslint-disable-next-line no-console
-    console.log(username, password);
+    console.log(res);
   };
 
   return (
