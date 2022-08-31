@@ -3,7 +3,7 @@ import GotoButton from '../components/GotoButton';
 
 const Settings: FC = () => {
   return (
-    <main>
+    <main className="settings-page">
       <h2 className="pane-header">Settings</h2>
       <GotoButton to="/" />
     </main>

@@ -22,17 +22,14 @@ const Check: FC = () => {
   };
 
   return (
-    <main>
-      <h2 className="pane-header">
-        Check
-        <GotoButton to="/auth/login" />
-      </h2>
+    <main className="check-page">
+      <h2 className="pane-header">Check</h2>
       <section className="input">
         <SimpleEditor
           rawContent={rawContent}
           updateContent={(raw) => setRawContent(raw)}
         />
-        <div className="action">
+        <div className="space-content">
           <Button icon="arrow-up" text="上传文档" />
           <Button
             intent={Intent.PRIMARY}
@@ -44,6 +41,7 @@ const Check: FC = () => {
       </section>
       <section className="output">
         <p>输出错误</p>
+        <GotoButton to="/auth/login" />
       </section>
     </main>
   );

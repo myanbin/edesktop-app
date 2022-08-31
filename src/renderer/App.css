@@ -28,7 +28,21 @@ h2.pane-header {
   margin: 0 0 1rem 0;
 }
 
-.action {
+.space-content {
   display: flex;
   justify-content: space-between;
+}
+
+/* Login Page */
+main.login-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-image: url(https://notes.xinhua-news.cn/photos/images/background.svg);
+}
+
+main.login-page section.login {
+  margin: 0 auto;
+  padding: 2rem;
+  width: 360px;
 }

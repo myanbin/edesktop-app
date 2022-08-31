@@ -5,11 +5,11 @@ import './App.css';
 import Login from './views/Login';
 
 const container = document.getElementById('root')!;
-
-createRoot(container).render(
+const root = createRoot(container);
+root.render(
   <MemoryRouter>
     <Routes>
-      <Route path="/" element={<App />} />
+      <Route path="/*" element={<App />} />
       <Route path="/auth/login" element={<Login />} />
     </Routes>
   </MemoryRouter>
