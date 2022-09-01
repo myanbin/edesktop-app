@@ -5,7 +5,7 @@ const Settings: FC = () => {
   return (
     <main className="settings-page">
       <h2 className="pane-header">Settings</h2>
-      <GotoButton to="/" />
+      <GotoButton to="/auth/login" />
     </main>
   );
 };

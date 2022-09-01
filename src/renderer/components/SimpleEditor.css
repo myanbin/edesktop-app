@@ -1,7 +1,8 @@
 .simple-editor {
   margin-bottom: 1rem;
 }
-.simple-editor .DraftEditor-root {
+.simple-editor .DraftEditor-editorContainer {
+  min-height: 50vh;
   font-size: 16px;
   line-height: 24px;
   background-color: #fff;

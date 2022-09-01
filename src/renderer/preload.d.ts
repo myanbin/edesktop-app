@@ -1,4 +1,5 @@
 import { Channels } from 'main/preload';
+import { Response } from 'main/request';
 
 declare global {
   interface Window {
@@ -11,7 +12,7 @@ declare global {
         ): (() => void) | undefined;
         once(channel: string, func: (...args: unknown[]) => void): void;
       };
-      httpRequest(target: string, data: unknown): Promise<unknown>;
+      httpRequest(target: string, data: unknown): Promise<Response>;
     };
   }
 }

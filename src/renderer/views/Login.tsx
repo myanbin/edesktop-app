@@ -11,18 +11,25 @@ const Login: FC = () => {
   const [password, setPassword] = useState('');
 
   const handleSubmit = async () => {
-    const res = await window.electron.httpRequest('login', {
+    const result = await window.electron.httpRequest('login', {
       username,
       password,
     });
-    // eslint-disable-next-line no-console
-    console.log(res);
-    appToaster.show({
-      intent: Intent.PRIMARY,
-      icon: 'notifications',
-      message: '没错，你就是马艳彬本人~',
-    });
-    navigate('/');
+    console.log(result);
+    if (result.code === 200) {
+      appToaster.show({
+        intent: Intent.PRIMARY,
+        icon: 'emoji',
+        message: '欢迎使用较真客户端',
+      });
+      navigate('/');
+    } else {
+      appToaster.show({
+        intent: Intent.DANGER,
+        icon: 'warning-sign',
+        message: '登录失败，请检查您的用户名和密码',
+      });
+    }
   };
 
   return (

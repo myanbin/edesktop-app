@@ -1,8 +1,8 @@
 import { FC, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 import { RawDraftContentState } from 'draft-js';
-import GotoButton from '../components/GotoButton';
 import SimpleEditor from '../components/SimpleEditor';
+import { appToaster } from '../utils';
 
 const Check: FC = () => {
   const [rawContent, setRawContent] = useState({
@@ -10,15 +10,22 @@ const Check: FC = () => {
     entityMap: {},
   } as RawDraftContentState);
 
-  const handleCheck = () => {
-    // eslint-disable-next-line no-console
-    console.log(rawContent);
+  const handleCheck = async () => {
     const input = {
-      key: 'content',
+      key: 'checkContent',
       value: rawContent.blocks.map((block) => block.text).join('\n'),
     };
-    // eslint-disable-next-line no-console
-    console.log(input);
+    const result = await window.electron.httpRequest('check', input);
+    if (result.code === 200) {
+      // eslint-disable-next-line no-console
+      console.log(result);
+    } else {
+      appToaster.show({
+        intent: Intent.DANGER,
+        icon: 'warning-sign',
+        message: '检校失败',
+      });
+    }
   };
 
   return (
@@ -41,7 +48,6 @@ const Check: FC = () => {
       </section>
       <section className="output">
         <p>输出错误</p>
-        <GotoButton to="/auth/login" />
       </section>
     </main>
   );
