@@ -15,7 +15,6 @@ const Login: FC = () => {
       username,
       password,
     });
-    console.log(result);
     if (result.code === 200) {
       appToaster.show({
         intent: Intent.PRIMARY,

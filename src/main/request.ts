@@ -1,4 +1,5 @@
 import { ipcMain, net } from 'electron';
+import store from './store';
 
 export interface Response<T = unknown> {
   code: number;
@@ -28,10 +29,26 @@ ipcMain.handle('request:login', (_e, body: LoginRequest): Promise<Response> => {
     req.on('response', (res) => {
       res.on('data', (chunk) => {
         const data = JSON.parse(chunk.toString());
-        resolve({
-          code: data.code === 0 ? 200 : 403,
-          data: data.result,
-        });
+        if (data.code !== 0) {
+          resolve({
+            code: 403,
+            data: null,
+          });
+        } else {
+          store.set('account.token', data.result.token);
+          const result = {
+            username: data.result.username,
+            nickname: data.result.nickName,
+            organization: data.result.companyName,
+            email: data.result.email,
+            phone: data.result.phone,
+            token: data.result.token,
+          };
+          resolve({
+            code: 200,
+            data: result,
+          });
+        }
       });
     });
     req.setHeader('Content-Type', 'application/json');
@@ -54,14 +71,23 @@ ipcMain.handle('request:check', (_e, body: CheckRequest): Promise<Response> => {
       }
       res.on('data', (chunk) => {
         const data = JSON.parse(chunk.toString());
+        const result = data.data[0][body.key].map((item: any) => {
+          return {
+            errCode: +item.errLevel,
+            errPosition: item.errPos,
+            errText: item.errWord,
+            corText: item.corWord[0] || '',
+            errMessage: item.errMsg,
+          };
+        });
         resolve({
           code: 200,
-          data: data.data[0][body.key],
+          data: result,
         });
       });
     });
     req.setHeader('Content-Type', 'application/json');
-    req.setHeader('Authorization', 'Bearer dG6zsIRNuCMlA0Hzsawm2eAuA');
+    req.setHeader('Authorization', `Bearer ${store.get('account.token')}`);
     req.end(
       JSON.stringify({
         checkContentList: [body],
