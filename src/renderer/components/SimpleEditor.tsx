@@ -1,55 +1,39 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { Button, ButtonGroup, Divider } from '@blueprintjs/core';
-import {
-  convertFromRaw,
-  convertToRaw,
-  Editor,
-  EditorState,
-  RawDraftContentState,
-} from 'draft-js';
+import { Editor, EditorState } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import './SimpleEditor.css';
 
 interface SimpleEditorProps {
-  rawContent: RawDraftContentState;
-  updateContent: (raw: RawDraftContentState) => void;
+  editorState: EditorState;
+  updateState: (state: EditorState) => void;
 }
 
-const SimpleEditor: FC<SimpleEditorProps> = (props) => {
-  const { rawContent, updateContent } = props;
-  const [editorState, setEditorState] = useState(() =>
-    EditorState.createWithContent(convertFromRaw(rawContent))
-  );
-
-  const handleChange = (state: EditorState) => {
-    setEditorState(state);
-    updateContent(convertToRaw(editorState.getCurrentContent()));
-  };
-
+const SimpleEditor: FC<SimpleEditorProps> = ({ editorState, updateState }) => {
   return (
     <div className="simple-editor">
       <ButtonGroup minimal>
         <Button
           minimal
           icon="undo"
-          onClick={() => setEditorState(EditorState.undo(editorState))}
+          onClick={() => updateState(EditorState.undo(editorState))}
         />
         <Button
           minimal
           icon="redo"
-          onClick={() => setEditorState(EditorState.redo(editorState))}
+          onClick={() => updateState(EditorState.redo(editorState))}
         />
         <Divider />
         <Button
           minimal
           icon="clean"
           text="清除"
-          onClick={() => setEditorState(EditorState.createEmpty())}
+          onClick={() => updateState(EditorState.createEmpty())}
         />
       </ButtonGroup>
       <Editor
         editorState={editorState}
-        onChange={(state) => handleChange(state)}
+        onChange={(state) => updateState(state)}
       />
     </div>
   );

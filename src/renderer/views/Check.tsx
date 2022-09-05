@@ -1,24 +1,26 @@
 import { FC, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
-import { RawDraftContentState } from 'draft-js';
+import { CompositeDecorator, convertToRaw, EditorState } from 'draft-js';
 import SimpleEditor from '../components/SimpleEditor';
+import CheckedResult from '../components/CheckedResult';
 import { appToaster } from '../utils';
 
+const decorator = new CompositeDecorator([]);
+
 const Check: FC = () => {
-  const [rawContent, setRawContent] = useState({
-    blocks: [],
-    entityMap: {},
-  } as RawDraftContentState);
+  const [editorState, setEditorState] = useState(() =>
+    EditorState.createEmpty(decorator)
+  );
+  const [checkedErrors, setCheckedErrors] = useState([]);
 
   const handleCheck = async () => {
-    const input = {
+    const rawContent = convertToRaw(editorState.getCurrentContent());
+    const result = await window.electron.httpRequest('check', {
       key: 'checkContent',
       value: rawContent.blocks.map((block) => block.text).join('\n'),
-    };
-    const result = await window.electron.httpRequest('check', input);
+    });
     if (result.code === 200) {
-      // eslint-disable-next-line no-console
-      console.log(result);
+      setCheckedErrors(result.data as never);
     } else {
       appToaster.show({
         intent: Intent.DANGER,
@@ -33,8 +35,8 @@ const Check: FC = () => {
       <h2 className="pane-header">Check</h2>
       <section className="input">
         <SimpleEditor
-          rawContent={rawContent}
-          updateContent={(raw) => setRawContent(raw)}
+          editorState={editorState}
+          updateState={(state: EditorState) => setEditorState(state)}
         />
         <div className="space-content">
           <Button icon="arrow-up" text="上传文档" />
@@ -47,7 +49,8 @@ const Check: FC = () => {
         </div>
       </section>
       <section className="output">
-        <p>输出错误</p>
+        <h3>Result</h3>
+        <CheckedResult data={checkedErrors} />
       </section>
     </main>
   );

@@ -7,12 +7,12 @@ export interface Response<T = unknown> {
   data: T;
 }
 
-type LoginRequest = {
+export type LoginRequest = {
   username: string;
   password: string;
 };
 
-type CheckRequest = {
+export type CheckRequest = {
   key: string;
   value: string;
 };
@@ -36,17 +36,16 @@ ipcMain.handle('request:login', (_e, body: LoginRequest): Promise<Response> => {
           });
         } else {
           store.set('account.token', data.result.token);
-          const result = {
-            username: data.result.username,
-            nickname: data.result.nickName,
-            organization: data.result.companyName,
-            email: data.result.email,
-            phone: data.result.phone,
-            token: data.result.token,
-          };
           resolve({
             code: 200,
-            data: result,
+            data: {
+              username: data.result.username,
+              nickname: data.result.nickName,
+              organization: data.result.companyName,
+              email: data.result.email,
+              phone: data.result.phone,
+              token: data.result.token,
+            },
           });
         }
       });
