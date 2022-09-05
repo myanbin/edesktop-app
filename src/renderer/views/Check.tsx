@@ -1,17 +1,48 @@
 import { FC, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
-import { CompositeDecorator, convertToRaw, EditorState } from 'draft-js';
+import {
+  CompositeDecorator,
+  ContentBlock,
+  ContentState,
+  convertToRaw,
+  EditorState,
+  Modifier,
+} from 'draft-js';
 import SimpleEditor from '../components/SimpleEditor';
 import CheckedResult from '../components/CheckedResult';
 import { appToaster } from '../utils';
+import CheckedErrorSpan from '../components/CheckedSpan';
 
-const decorator = new CompositeDecorator([]);
+const decorator = new CompositeDecorator([
+  {
+    strategy: (
+      block: ContentBlock,
+      callback: (start: number, end: number) => void,
+      contentState: ContentState
+    ) => {
+      block.findEntityRanges((character) => {
+        const entityKey = character.getEntity();
+        if (entityKey === null) {
+          return false;
+        }
+        return contentState.getEntity(entityKey).getType() === 'CHECKED_ERROR';
+      }, callback);
+    },
+    component: CheckedErrorSpan,
+  },
+]);
 
 const Check: FC = () => {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty(decorator)
   );
   const [checkedErrors, setCheckedErrors] = useState([]);
+
+  const handleSave = () => {
+    const rawContent = convertToRaw(editorState.getCurrentContent());
+    // eslint-disable-next-line no-console
+    console.log(rawContent);
+  };
 
   const handleCheck = async () => {
     const rawContent = convertToRaw(editorState.getCurrentContent());
@@ -21,6 +52,21 @@ const Check: FC = () => {
     });
     if (result.code === 200) {
       setCheckedErrors(result.data as never);
+      const contentState = editorState.getCurrentContent();
+      const contentStateWithEntity = contentState.createEntity(
+        'CHECKED_ERROR',
+        'MUTABLE',
+        checkedErrors[0]
+      );
+      const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+      const contentStateWithLink = Modifier.applyEntity(
+        contentStateWithEntity,
+        editorState.getSelection(),
+        entityKey
+      );
+      setEditorState(
+        EditorState.set(editorState, { currentContent: contentStateWithLink })
+      );
     } else {
       appToaster.show({
         intent: Intent.DANGER,
@@ -39,7 +85,7 @@ const Check: FC = () => {
           updateState={(state: EditorState) => setEditorState(state)}
         />
         <div className="space-content">
-          <Button icon="arrow-up" text="上传文档" />
+          <Button icon="arrow-up" text="保存" onClick={() => handleSave()} />
           <Button
             intent={Intent.PRIMARY}
             icon="tick"
