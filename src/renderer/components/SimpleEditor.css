@@ -16,3 +16,11 @@
 .public-DraftStyleDefault-block span[data-text='true'] {
   line-height: 1.6em;
 }
+
+.checked-error {
+  display: inline-block;
+  border-bottom: 1px dotted #ff0000;
+}
+.checked-error:hover {
+  background-color: aliceblue;
+}

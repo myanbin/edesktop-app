@@ -12,7 +12,7 @@ import {
 import SimpleEditor from '../components/SimpleEditor';
 import CheckedResult from '../components/CheckedResult';
 import { appToaster } from '../utils';
-import CheckedErrorSpan from '../components/CheckedSpan';
+import CheckedError from '../components/CheckedError';
 
 const decorator = new CompositeDecorator([
   {
@@ -29,30 +29,21 @@ const decorator = new CompositeDecorator([
         return contentState.getEntity(entityKey).getType() === 'CHECKED_ERROR';
       }, callback);
     },
-    component: CheckedErrorSpan,
+    component: CheckedError,
   },
 ]);
-
-type CheckedError = {
-  key?: string;
-  start: number;
-  end: number;
-  errText: string;
-  corText: string;
-  level: number;
-  message: string;
-};
 
 const Check: FC = () => {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty(decorator)
   );
-  const [checkedErrors, setCheckedErrors] = useState<CheckedError[]>([]);
+  const [checkedErrors, setCheckedErrors] = useState([]);
 
   const handleSave = () => {
     const rawContent = convertToRaw(editorState.getCurrentContent());
     // eslint-disable-next-line no-console
     console.log(rawContent);
+    // eslint-disable-next-line no-console
     console.log(editorState.getSelection());
   };
 
@@ -71,14 +62,13 @@ const Check: FC = () => {
       // eslint-disable-next-line no-console
       console.log('response', result.data);
 
-      result.data.forEach((error: CheckedError) => {
+      result.data.forEach((error: any) => {
         const blockKey = error.key as string;
         const selection = SelectionState.createEmpty(blockKey);
         const newSelection = selection.merge({
           anchorOffset: error.start,
           focusOffset: error.end,
         });
-        console.log(newSelection);
         const contentState = editorState.getCurrentContent();
         const contentStateWithEntity = contentState.createEntity(
           'CHECKED_ERROR',
