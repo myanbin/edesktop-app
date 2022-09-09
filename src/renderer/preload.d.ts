@@ -12,7 +12,7 @@ declare global {
         ): (() => void) | undefined;
         once(channel: string, func: (...args: unknown[]) => void): void;
       };
-      httpRequest(target: string, data: unknown): Promise<Response>;
+      httpRequest(target: string, data: unknown): Promise<Response<any>>;
     };
   }
 }

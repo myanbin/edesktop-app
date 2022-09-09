@@ -14,7 +14,8 @@ const CheckedErrorSpan: FC<CheckedErrorSpanProps> = ({
 }) => {
   const entity = contentState.getEntity(entityKey);
   const checkedError = entity.getData();
-  return <mark title={checkedError.corText}>{children}</mark>;
+  console.log('entity data', checkedError);
+  return <mark title={`建议为 ${checkedError.corText}`}>{children}</mark>;
 };
 
 export default CheckedErrorSpan;

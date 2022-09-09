@@ -7,15 +7,15 @@ export interface Response<T = unknown> {
   data: T;
 }
 
-export type LoginRequest = {
+type LoginRequest = {
   username: string;
   password: string;
 };
 
-export type CheckRequest = {
+type CheckRequest = {
   key: string;
   value: string;
-};
+}[];
 
 // Backend HTTP API
 const baseUrl = 'http://172.21.234.48/jiaozhen_api';
@@ -70,18 +70,23 @@ ipcMain.handle('request:check', (_e, body: CheckRequest): Promise<Response> => {
       }
       res.on('data', (chunk) => {
         const data = JSON.parse(chunk.toString());
-        const result = data.data[0][body.key].map((item: any) => {
-          return {
-            errCode: +item.errLevel,
-            errPosition: item.errPos,
-            errText: item.errWord,
-            corText: item.corWord[0] || '',
-            errMessage: item.errMsg,
-          };
+        const errors = data.data.map((block: any) => {
+          const key = Object.keys(block).join('');
+          return block[key].map((error: any) => {
+            return {
+              key,
+              start: error.errPos,
+              end: error.errPos + error.errWord.length,
+              errText: error.errWord,
+              corText: error.corWord[0] || '',
+              level: +error.errLevel,
+              message: error.errMsg,
+            };
+          });
         });
         resolve({
           code: 200,
-          data: result,
+          data: errors.flat(),
         });
       });
     });
@@ -89,7 +94,7 @@ ipcMain.handle('request:check', (_e, body: CheckRequest): Promise<Response> => {
     req.setHeader('Authorization', `Bearer ${store.get('account.token')}`);
     req.end(
       JSON.stringify({
-        checkContentList: [body],
+        checkContentList: body,
       })
     );
   });

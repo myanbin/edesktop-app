@@ -7,6 +7,7 @@ import {
   convertToRaw,
   EditorState,
   Modifier,
+  SelectionState,
 } from 'draft-js';
 import SimpleEditor from '../components/SimpleEditor';
 import CheckedResult from '../components/CheckedResult';
@@ -32,41 +33,68 @@ const decorator = new CompositeDecorator([
   },
 ]);
 
+type CheckedError = {
+  key?: string;
+  start: number;
+  end: number;
+  errText: string;
+  corText: string;
+  level: number;
+  message: string;
+};
+
 const Check: FC = () => {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty(decorator)
   );
-  const [checkedErrors, setCheckedErrors] = useState([]);
+  const [checkedErrors, setCheckedErrors] = useState<CheckedError[]>([]);
 
   const handleSave = () => {
     const rawContent = convertToRaw(editorState.getCurrentContent());
     // eslint-disable-next-line no-console
     console.log(rawContent);
+    console.log(editorState.getSelection());
   };
 
   const handleCheck = async () => {
     const rawContent = convertToRaw(editorState.getCurrentContent());
-    const result = await window.electron.httpRequest('check', {
-      key: 'checkContent',
-      value: rawContent.blocks.map((block) => block.text).join('\n'),
+    // 创建检校请求体，每一个 Block 为一个检校单元
+    const input = rawContent.blocks.map((block) => {
+      return {
+        key: block.key,
+        value: block.text,
+      };
     });
+    const result = await window.electron.httpRequest('check', input);
     if (result.code === 200) {
-      setCheckedErrors(result.data as never);
-      const contentState = editorState.getCurrentContent();
-      const contentStateWithEntity = contentState.createEntity(
-        'CHECKED_ERROR',
-        'MUTABLE',
-        checkedErrors[0]
-      );
-      const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-      const contentStateWithLink = Modifier.applyEntity(
-        contentStateWithEntity,
-        editorState.getSelection(),
-        entityKey
-      );
-      setEditorState(
-        EditorState.set(editorState, { currentContent: contentStateWithLink })
-      );
+      setCheckedErrors(result.data);
+      // eslint-disable-next-line no-console
+      console.log('response', result.data);
+
+      result.data.forEach((error: CheckedError) => {
+        const blockKey = error.key as string;
+        const selection = SelectionState.createEmpty(blockKey);
+        const newSelection = selection.merge({
+          anchorOffset: error.start,
+          focusOffset: error.end,
+        });
+        console.log(newSelection);
+        const contentState = editorState.getCurrentContent();
+        const contentStateWithEntity = contentState.createEntity(
+          'CHECKED_ERROR',
+          'MUTABLE',
+          error
+        );
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+        const contentStateWithLink = Modifier.applyEntity(
+          contentStateWithEntity,
+          EditorState.acceptSelection(editorState, newSelection).getSelection(),
+          entityKey
+        );
+        setEditorState(
+          EditorState.set(editorState, { currentContent: contentStateWithLink })
+        );
+      });
     } else {
       appToaster.show({
         intent: Intent.DANGER,
